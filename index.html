@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piknik Budget Pro</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f6f8;
+            padding: 15px;
+        }
+
+        /* Desain Judul Keren & Menarik */
+        .judul-container {
+            text-align: center;
+            margin: 20px 0 10px 0;
+        }
+
+        h1.judul-keren {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(45deg, #16a085, #2980b9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tujuan-aktif {
+            text-align: center;
+            font-size: 18px;
+            color: #7f8c8d;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, .08);
+        }
+
+        .total {
+            text-align: center;
+            font-size: 30px;
+            color: #16a085;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            margin-bottom: 8px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: #16a085;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .btn-pdf {
+            background: #e67e22;
+            margin-top: 10px;
+        }
+
+        /* --- DESAIN SAMA PERSIS SEPERTI DI SCREENSHOT ANDA --- */
+        .pdf-preview-box {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, .08);
+            margin-top: 20px;
+        }
+
+        .pdf-title {
+            text-align: center;
+            color: #16a085;
+            margin-top: 0;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            font-size: 20px;
+            border-bottom: 2px dashed #ddd;
+            padding-bottom: 10px;
+        }
+
+        .pdf-meta {
+            font-size: 14px;
+            margin-bottom: 15px;
+            line-height: 1.6;
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        ol.pdf-list {
+            padding-left: 20px;
+            margin: 0;
+        }
+
+        ol.pdf-list li {
+            margin-bottom: 12px;
+            font-size: 15px;
+            color: #333;
+        }
+
+        .item {
+            background: white;
+            border-left: 5px solid #16a085;
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            width: 100%;
+        }
+
+        .kiri {
+            flex: 1;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .hapus {
+            background: #e74c3c;
+            width: auto;
+            padding: 6px 12px;
+            margin-top: 0;
+            font-size: 13px;
+        }
+
+        .summary {
+            font-size: 14px;
+            line-height: 1.8;
+        }
+    </style>
+    <link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#16a085">
+</head>
+<body>
+
+    <div class="judul-container">
+        <h1 class="judul-keren"> 🛵 Piknik Budget 🏍️</h1>
+    </div>
+    <div class="tujuan-aktif" id="tujuan-aktif">Tujuan: Belum Ditentukan</div>
+
+    <div class="card">
+        <h3>📍 Rencana Tujuan</h3>
+        <input type="text" id="tujuan-input" placeholder="Mau piknik kemana? (Contoh: Ciater)" oninput="updateTujuan()">
+    </div>
+
+    <div class="card">
+        <h3>➕ Tambah Pengeluaran</h3>
+        <input type="date" id="tanggal">
+        <select id="kategori">
+            <option>Bensin</option><option>Tol</option><option>Parkir</option><option>Tiket Pesawat</option>
+            <option>Tiket Kereta</option><option>Bus</option><option>Ojek Online</option><option>Sewa Kendaraan</option>
+            <option>Sarapan</option><option>Makan Siang</option><option>Makan Malam</option><option>Snack</option>
+            <option>Minuman</option><option>Kopi / Cafe</option><option>Hotel</option><option>Villa</option>
+            <option>Homestay</option><option>Camping</option><option>Tiket Wisata</option><option>Wahana</option>
+            <option>Guide</option><option>Sewa Peralatan</option><option>Oleh-oleh</option><option>Souvenir</option>
+            <option>Kebutuhan Pribadi</option><option>Obat-obatan</option><option>Dana Darurat</option><option>Lainnya</option>
+        </select>
+        <input id="keterangan" placeholder="Keterangan Pengeluaran">
+        <input type="text" id="nominal" placeholder="Nominal" oninput="formatMataUang(this)">
+        <button onclick="tambahData()">Simpan Pengeluaran</button>
+        
+        <button class="btn-pdf" onclick="unduhPDF()">📥 Download Laporan PDF</button>
+    </div>
+
+    <div class="card">
+        <h3>Ringkasan Per Kategori</h3>
+        <div id="summary" class="summary">Belum ada data</div>
+    </div>
+
+    <div class="pdf-preview-box" id="area-cetak-pdf">
+        <h3 class="pdf-title">LAPORAN PENGELUARAN PIKNIK</h3>
+        
+        <div class="pdf-meta">
+            <strong>Tanggal Cetak:</strong> <span id="pdf-tanggal-cetak">-</span><br>
+            <strong>Tujuan Piknik:</strong> <span id="pdf-tujuan">-</span><br>
+            <strong>Total Pengeluaran:</strong> <span id="pdf-total" style="color:#16a085; font-weight:bold;">Rp 0</span>
+        </div>
+
+        <h4 style="margin-bottom: 15px; color: #555;">Rincian Pengeluaran:</h4>
+        <ol class="pdf-list" id="pdf-rincian-list">
+            <li style="color: #999; list-style: none;">Belum ada rincian data.</li>
+        </ol>
+    </div>
+
+    <script>
+        let data = JSON.parse(localStorage.getItem("piknikbudget")) || [];
+        let tujuanPiknik = localStorage.getItem("tujuanpiknik") || "";
+        
+        document.getElementById("tanggal").value = new Date().toISOString().split("T")[0];
+        if(tujuanPiknik) {
+            document.getElementById("tujuan-input").value = tujuanPiknik;
+        }
+
+        function simpanData() {
+            localStorage.setItem("piknikbudget", JSON.stringify(data));
+        }
+
+        function updateTujuan() {
+            let tjn = document.getElementById("tujuan-input").value;
+            localStorage.setItem("tujuanpiknik", tjn);
+            document.getElementById("tujuan-aktif").innerText = tjn ? "Tujuan: " + tjn : "Tujuan: Belum Ditentukan";
+            document.getElementById("pdf-tujuan").innerText = tjn ? tjn : "Belum Ditentukan";
+        }
+
+        function rupiah(angka) {
+            return angka.toLocaleString("id-ID");
+        }
+
+        function formatMataUang(input) {
+            let value = input.value.replace(/\D/g, "");
+            if (value === "") {
+                input.value = "";
+                return;
+            }
+            input.value = parseInt(value).toLocaleString("id-ID");
+        }
+
+        function tambahData() {
+            let tanggal = document.getElementById("tanggal").value;
+            let kategori = document.getElementById("kategori").value;
+            let keterangan = document.getElementById("keterangan").value;
+            let nominalRaw = document.getElementById("nominal").value.replace(/\./g, "");
+            let nominal = parseInt(nominalRaw);
+
+            if (!keterangan || !nominal) {
+                alert("Lengkapi data");
+                return;
+            }
+
+            data.unshift({ tanggal, kategori, keterangan, nominal });
+            simpanData();
+            render();
+
+            document.getElementById("keterangan").value = "";
+            document.getElementById("nominal").value = "";
+        }
+
+        function hapus(index) {
+            if (confirm("Hapus data ini?")) {
+                data.splice(index, 1);
+                simpanData();
+                render();
+            }
+        }
+
+        function render() {
+            let total = 0;
+            let listHtml = "";
+            let kategoriTotal = {};
+
+            updateTujuan();
+            document.getElementById("pdf-tanggal-cetak").innerText = new Date().toLocaleDateString("id-ID");
+
+            // Urutan dibalik agar nomor 1 dimulai dari transaksi pertama/terlama seperti di foto Anda
+            data.slice().reverse().forEach((item, index) => {
+                total += item.nominal;
+                
+                if (!kategoriTotal[item.kategori]) {
+                    kategoriTotal[item.kategori] = 0;
+                }
+                kategoriTotal[item.kategori] += item.nominal;
+
+                let realIndex = data.length - 1 - index; 
+                listHtml += `
+                <li>
+                    <div class="item">
+                        <div class="kiri">
+                            <strong>[${item.tanggal}] ${item.kategori}</strong> - ${item.keterangan} 
+                            <br><span style="color:#27ae60; font-weight:bold;">Rp ${rupiah(item.nominal)}</span>
+                        </div>
+                        <button class="hapus" onclick="hapus(${realIndex})">Hapus</button>
+                    </div>
+                </li>
+                `;
+            });
+
+            document.getElementById("pdf-total").innerText = "Rp " + rupiah(total);
+            
+            if(data.length > 0) {
+                document.getElementById("pdf-rincian-list").innerHTML = listHtml;
+            } else {
+                document.getElementById("pdf-rincian-list").innerHTML = `<li style="color: #999; list-style: none;">Belum ada rincian data.</li>`;
+            }
+
+            let ringkasan = "";
+            for (let kategori in kategoriTotal) {
+                ringkasan += `${kategori}: Rp ${rupiah(kategoriTotal[kategori])}<br>`;
+            }
+            document.getElementById("summary").innerHTML = ringkasan ? ringkasan : "Belum ada data";
+        }
+
+        // FUNGSI BARU: GENERATE FILE PDF LANGSUNG MENGGUNAKAN DATA JS (GARANSI DOWNLOAD OTOMATIS)
+        function unduhPDF() {
+            if (data.length === 0) {
+                alert("Tidak ada data pengeluaran untuk diunduh!");
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+
+            let tjn = document.getElementById("tujuan-input").value || "Belum Ditentukan";
+            let tglCetak = new Date().toLocaleDateString("id-ID");
+            let totalDuit = document.getElementById("pdf-total").innerText;
+
+            // 1. Desain Header PDF murni teks formal
+            doc.setFont("Helvetica", "bold");
+            doc.setFontSize(18);
+            doc.setTextColor(22, 160, 133); // Warna Hijau Tema Aplikasi
+            doc.text("LAPORAN PENGELUARAN PIKNIK", 105, 20, { align: "center" });
+
+            // Garis pembatas horizontal
+            doc.setDrawColor(200, 200, 200);
+            doc.line(15, 25, 195, 25);
+
+            // 2. Info Metadata Laporan
+            doc.setFont("Helvetica", "normal");
+            doc.setFontSize(11);
+            doc.setTextColor(50, 50, 50);
+            doc.text(`Tanggal Cetak : ${tglCetak}`, 15, 35);
+            doc.text(`Tujuan Piknik  : ${tjn}`, 15, 42);
+            
+            doc.setFont("Helvetica", "bold");
+            doc.text(`Total Pengeluaran : ${totalDuit}`, 15, 49);
+
+            // Garis pembatas rincian
+            doc.setDrawColor(230, 230, 230);
+            doc.line(15, 55, 195, 55);
+
+            doc.setFont("Helvetica", "bold");
+            doc.text("Rincian Pengeluaran:", 15, 63);
+
+            // 3. Looping Data Menjadi List Berurutan Angka (1, 2, 3...) mendatar ke file PDF
+            doc.setFont("Helvetica", "normal");
+            doc.setFontSize(11);
+            let yPosition = 71;
+
+            data.slice().reverse().forEach((item, index) => {
+                // Antisipasi jika halaman penuh, tambah halaman baru otomatis
+                if (yPosition > 275) {
+                    doc.addPage();
+                    yPosition = 20; 
+                }
+
+                let teksBaris = `${index + 1}. [${item.tanggal}] ${item.kategori} - ${item.keterangan} (Rp ${rupiah(item.nominal)})`;
+                doc.text(teksBaris, 15, yPosition);
+                yPosition += 8; // Jarak antar baris nomor laporan
+            });
+
+            // Langsung eksekusi download otomatis file PDF ke folder download HP
+            doc.save(`Laporan_Piknik_${tjn.replace(/\s+/g, '_')}.pdf`);
+        }
+
+        render();
+        const CACHE_NAME = 'piknik-budget-v1';
+const ASSETS = [
+  '/',
+  '/index.html',
+  '/manifest.json',
+  '/icon-192.png',
+  '/icon-512.png'
+];
+
+// Install Service Worker dan simpan file ke cache
+self.addEventListener('install', (e) => {
+  e.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS);
+    })
+  );
+});
+
+// Aktivasi dan hapus cache lama jika ada update
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+        })
+      );
+    })
+  );
+});
+
+// Ambil data dari cache jika offline
+self.addEventListener('fetch', (e) => {
+  e.respondWith(
+    caches.match(e.request).then((cachedResponse) => {
+      return cachedResponse || fetch(e.request);
+    })
+  );
+});
+    </script>
+</body>
+</html>
